@@ -1,0 +1,43 @@
+{
+  "realm": "pokergto",
+  "enabled": true,
+  "registrationAllowed": false,
+  "sslRequired": "none",
+  "roles": {
+    "realm": [
+      { "name": "user", "description": "Standard PokerGTO user" },
+      { "name": "admin", "description": "PokerGTO content/admin access" }
+    ]
+  },
+  "defaultRole": {
+    "name": "default-roles-pokergto",
+    "composite": true,
+    "composites": {
+      "realm": ["user", "offline_access", "uma_authorization"]
+    }
+  },
+  "clients": [
+    {
+      "clientId": "pokergto-backend",
+      "name": "PokerGTO Backend",
+      "enabled": true,
+      "publicClient": false,
+      "protocol": "openid-connect",
+      "secret": "dev-client-secret-change-me",
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "authorizationServicesEnabled": false
+    }
+  ],
+  "users": [
+    {
+      "username": "service-account-pokergto-backend",
+      "enabled": true,
+      "serviceAccountClientId": "pokergto-backend",
+      "clientRoles": {
+        "realm-management": ["manage-users", "view-users", "query-users"]
+      }
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+# Production-style build — packaged jar behind a JRE image, Angular built
+# and served via nginx. Standalone file, not merged with docker-compose.yml.
+#
+#   docker compose -f docker-compose.prod.yml up --build
+#
+# Cloud-agnostic on purpose (per current scope: local-only deployment target).
+# Revisit env/secrets handling when a hosting target is chosen.
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${DB_NAME:-pokergto}
+      POSTGRES_USER: ${DB_USERNAME:-pokergto}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set in production}
+    volumes:
+      - pokergto_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-pokergto}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # NOTE: placeholder — a real deployment needs Keycloak run in production
+  # mode (not start-dev/--import-realm) against its own persistent store and
+  # a real hostname/TLS setup. Revisit when a hosting target is chosen.
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.7.2
+    command: start-dev --import-realm
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?KEYCLOAK_ADMIN_PASSWORD must be set in production}
+    volumes:
+      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
+
+  backend:
+    build:
+      context: ./backend
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: jdbc:postgresql://postgres:5432/${DB_NAME:-pokergto}
+      DB_USERNAME: ${DB_USERNAME:-pokergto}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set in production}
+      KEYCLOAK_BASE_URL: http://keycloak:8080
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM:-pokergto}
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-pokergto-backend}
+      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET:?KEYCLOAK_CLIENT_SECRET must be set in production}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:?CORS_ALLOWED_ORIGINS must be set in production}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+
+  frontend:
+    build:
+      context: ./frontend
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+
+volumes:
+  pokergto_pgdata:

@@ -1,0 +1,66 @@
+<section class="flex min-h-dvh items-center justify-center bg-surface-950 px-4 py-8">
+  <form [formGroup]="form" (ngSubmit)="submit()" class="w-full max-w-sm space-y-5 rounded-2xl bg-surface-900 p-6">
+    <div class="text-center">
+      <h1 class="font-display text-2xl text-accent-400">PokerGTO</h1>
+      <p class="mt-1 text-sm text-white/60">Create an account to start training.</p>
+    </div>
+
+    @if (errorMessage()) {
+      <p class="rounded-lg bg-danger-500/10 px-3 py-2 text-sm text-danger-500">{{ errorMessage() }}</p>
+    }
+
+    <div>
+      <label for="displayName" class="mb-1 block text-sm text-white/80">Display name</label>
+      <input
+        id="displayName"
+        type="text"
+        formControlName="displayName"
+        autocomplete="nickname"
+        class="w-full rounded-lg border border-surface-700 bg-surface-800 px-3 py-3 text-base text-white outline-none focus:border-accent-500"
+      />
+      @if (form.controls.displayName.invalid && form.controls.displayName.touched) {
+        <p class="mt-1 text-xs text-danger-500">Enter a display name.</p>
+      }
+    </div>
+
+    <div>
+      <label for="email" class="mb-1 block text-sm text-white/80">Email</label>
+      <input
+        id="email"
+        type="email"
+        formControlName="email"
+        autocomplete="email"
+        class="w-full rounded-lg border border-surface-700 bg-surface-800 px-3 py-3 text-base text-white outline-none focus:border-accent-500"
+      />
+      @if (form.controls.email.invalid && form.controls.email.touched) {
+        <p class="mt-1 text-xs text-danger-500">Enter a valid email address.</p>
+      }
+    </div>
+
+    <div>
+      <label for="password" class="mb-1 block text-sm text-white/80">Password</label>
+      <input
+        id="password"
+        type="password"
+        formControlName="password"
+        autocomplete="new-password"
+        class="w-full rounded-lg border border-surface-700 bg-surface-800 px-3 py-3 text-base text-white outline-none focus:border-accent-500"
+      />
+      @if (form.controls.password.invalid && form.controls.password.touched) {
+        <p class="mt-1 text-xs text-danger-500">At least 8 characters.</p>
+      }
+    </div>
+
+    <button
+      type="submit"
+      [disabled]="isSubmitting()"
+      class="w-full rounded-lg bg-accent-500 py-3 text-base font-semibold text-surface-950 transition disabled:opacity-50"
+    >
+      {{ isSubmitting() ? 'Creating account…' : 'Create account' }}
+    </button>
+
+    <p class="text-center text-sm text-white/60">
+      Already have an account? <a routerLink="/auth/login" class="text-accent-400 hover:underline">Log in</a>
+    </p>
+  </form>
+</section>

@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+/* PokerGTO design tokens — dark, poker-table-inspired theme (§22) */
+@theme {
+  --color-felt-950: #06231b;
+  --color-felt-900: #0a2e23;
+  --color-felt-800: #0f3d2e;
+  --color-felt-700: #155039;
+
+  --color-surface-950: #0b0d10;
+  --color-surface-900: #12151a;
+  --color-surface-800: #1a1e26;
+  --color-surface-700: #262b35;
+
+  --color-accent-500: #d4af37; /* chip gold */
+  --color-accent-400: #e6c65c;
+
+  --color-success-500: #22c55e;
+  --color-danger-500: #ef4444;
+  --color-info-500: #3b82f6;
+
+  --font-display: "Sora", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-surface-950);
+  color: #e8eaed;
+  font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+}
