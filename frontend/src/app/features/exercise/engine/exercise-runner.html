@@ -1,0 +1,42 @@
+<section class="min-h-dvh bg-surface-950 px-4 py-8 text-white">
+  <div class="mx-auto max-w-2xl">
+    <a routerLink="/dashboard" class="text-sm text-white/50 hover:text-white">← Back</a>
+
+    @if (exercise(); as ex) {
+      <div class="mt-4 rounded-2xl bg-surface-900 p-6">
+        @switch (ex.type) {
+          @case ('MULTIPLE_CHOICE') {
+            <app-multiple-choice-exercise
+              [exercise]="ex"
+              [attempt]="attempt()"
+              [submitting]="submitting()"
+              (select)="onSelect($event)"
+            />
+          }
+          @case ('NUMERICAL') {
+            <app-numerical-exercise
+              [exercise]="ex"
+              [attempt]="attempt()"
+              [submitting]="submitting()"
+              (submitAnswer)="onNumericAnswer($event)"
+            />
+          }
+          @case ('EQUITY_ESTIMATION') {
+            <!-- Mechanically identical to NUMERICAL from the UI's perspective — a number
+                 + unit, graded by tolerance — so it reuses the same renderer. Angular's
+                 @switch has no case fallthrough, hence the duplicated block. -->
+            <app-numerical-exercise
+              [exercise]="ex"
+              [attempt]="attempt()"
+              [submitting]="submitting()"
+              (submitAnswer)="onNumericAnswer($event)"
+            />
+          }
+          @default {
+            <p class="text-sm text-white/60">No renderer yet for exercise type "{{ ex.type }}".</p>
+          }
+        }
+      </div>
+    }
+  </div>
+</section>

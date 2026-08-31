@@ -1,5 +1,6 @@
-package com.pokergto.user;
+package com.pokergto.user.repository;
 
+import com.pokergto.user.model.User;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;

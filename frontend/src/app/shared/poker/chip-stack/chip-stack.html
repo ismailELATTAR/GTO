@@ -1,0 +1,23 @@
+<div class="flex flex-col items-center gap-2">
+  <div class="relative h-11 w-11">
+    @for (i of [0, 1, 2]; track i) {
+      <div
+        class="absolute inset-x-0 h-9 w-9 mx-auto rounded-full border-2 shadow-[0_2px_3px_rgba(0,0,0,0.4)]"
+        [class.border-accent-400]="active()"
+        [class.bg-accent-500]="active()"
+        [class.border-surface-700]="!active()"
+        [class.bg-surface-800]="!active()"
+        style="background-image: repeating-conic-gradient(currentColor 0deg 8deg, transparent 8deg 16deg); background-blend-mode: overlay;"
+        [style.bottom.px]="i * 4"
+        [class.text-accent-300]="active()"
+        [class.text-surface-700]="!active()"
+      ></div>
+    }
+  </div>
+  <div class="text-center">
+    <p class="font-display text-lg font-semibold" [class.text-accent-400]="active()" [class.text-white]="!active()">
+      {{ value() }}
+    </p>
+    <p class="text-xs uppercase tracking-wide text-white/50">{{ label() }}</p>
+  </div>
+</div>

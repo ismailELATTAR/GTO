@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 /* PokerGTO design tokens — dark, poker-table-inspired theme (§22) */
 @theme {

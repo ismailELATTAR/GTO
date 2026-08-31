@@ -1,4 +1,4 @@
-package com.pokergto.user;
+package com.pokergto.user.model;
 
 public enum UserRole {
   USER,

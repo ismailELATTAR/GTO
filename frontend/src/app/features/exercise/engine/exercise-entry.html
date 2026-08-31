@@ -1,0 +1,63 @@
+<div class="min-h-dvh bg-surface-950 px-4 py-8 text-white sm:px-6">
+  <div class="mx-auto max-w-2xl">
+    <a routerLink="/dashboard" class="text-sm text-white/50 hover:text-white">← Back</a>
+
+    <div class="mt-4 rounded-2xl bg-surface-900 p-6">
+      <h1 class="font-display text-2xl text-accent-400">Start training</h1>
+      <p class="mt-1 text-sm text-white/50">Narrow it down, or leave everything on "Any" for a random pick.</p>
+
+      <div class="mt-6">
+        <p class="text-xs uppercase tracking-wide text-white/40">Difficulty</p>
+        <div class="mt-2 flex flex-wrap gap-2">
+          @for (choice of difficultyChoices; track choice.value) {
+            <button
+              type="button"
+              (click)="selectedDifficulty.set(choice.value)"
+              class="rounded-full border px-4 py-1.5 text-sm transition"
+              [class]="
+                selectedDifficulty() === choice.value
+                  ? 'border-accent-400 bg-accent-400/20 text-accent-300 font-semibold'
+                  : 'border-white/10 bg-surface-800 text-white/70 hover:border-white/25'
+              "
+            >
+              {{ choice.label }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="mt-6">
+        <p class="text-xs uppercase tracking-wide text-white/40">Exercise type</p>
+        <div class="mt-2 flex flex-wrap gap-2">
+          @for (choice of typeChoices; track choice.value) {
+            <button
+              type="button"
+              (click)="selectedType.set(choice.value)"
+              class="rounded-full border px-4 py-1.5 text-sm transition"
+              [class]="
+                selectedType() === choice.value
+                  ? 'border-accent-400 bg-accent-400/20 text-accent-300 font-semibold'
+                  : 'border-white/10 bg-surface-800 text-white/70 hover:border-white/25'
+              "
+            >
+              {{ choice.label }}
+            </button>
+          }
+        </div>
+      </div>
+
+      @if (notFound()) {
+        <p class="mt-4 text-sm text-red-400">No exercise matches that combination yet — try widening it.</p>
+      }
+
+      <button
+        type="button"
+        [disabled]="loading()"
+        (click)="start()"
+        class="mt-8 flex w-full items-center justify-center gap-2 rounded-xl bg-accent-500 py-4 text-base font-semibold text-surface-950 transition hover:bg-accent-400 disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-400"
+      >
+        {{ loading() ? 'Finding your exercise…' : 'Start' }}
+      </button>
+    </div>
+  </div>
+</div>

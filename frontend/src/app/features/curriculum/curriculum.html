@@ -1,0 +1,23 @@
+<div class="min-h-dvh bg-surface-950 px-4 py-8 text-white sm:px-6">
+  <div class="mx-auto max-w-2xl">
+    <h1 class="font-display text-2xl text-accent-400">Curriculum</h1>
+
+    @if (courses().length === 0) {
+      <p class="mt-4 text-white/60">No published courses yet.</p>
+    }
+
+    <div class="mt-6 space-y-3">
+      @for (course of courses(); track course.id) {
+        <a
+          [routerLink]="['/courses', course.id]"
+          class="block rounded-xl bg-surface-900 p-5 transition hover:bg-surface-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-400"
+        >
+          <h2 class="font-display text-lg font-semibold">{{ course.title }}</h2>
+          @if (course.description) {
+            <p class="mt-1 text-sm text-white/60">{{ course.description }}</p>
+          }
+        </a>
+      }
+    </div>
+  </div>
+</div>

@@ -1,14 +1,18 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
+import { CurriculumService } from '../../core/api/curriculum.service';
 
 @Component({
   selector: 'app-curriculum',
-  template: `
-    <section class="min-h-dvh bg-surface-950 px-4 py-8 text-white">
-      <div class="mx-auto max-w-2xl rounded-2xl bg-surface-900 p-6">
-        <h1 class="font-display text-xl text-accent-400">Curriculum</h1>
-        <p class="mt-2 text-sm text-white/60">Coming in Phase 3 (content system).</p>
-      </div>
-    </section>
-  `,
+  imports: [RouterLink],
+  templateUrl: './curriculum.html',
 })
-export class Curriculum {}
+export class Curriculum {
+  private readonly curriculumService = inject(CurriculumService);
+
+  // toSignal turns the HTTP Observable into a signal the template reads
+  // directly — no manual subscribe()/unsubscribe(), and it's cleaned up
+  // automatically when this component is destroyed.
+  protected readonly courses = toSignal(this.curriculumService.listCourses(), { initialValue: [] });
+}
