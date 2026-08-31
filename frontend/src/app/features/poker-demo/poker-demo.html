@@ -1,0 +1,50 @@
+<div class="min-h-dvh bg-surface-950 px-4 py-8 text-white sm:px-6">
+  <div class="mx-auto max-w-3xl space-y-10">
+    <div>
+      <h1 class="font-display text-2xl text-accent-400">Poker component demo</h1>
+      <p class="mt-1 text-sm text-white/50">
+        Phase 5 reference page — not part of the app flow, just a place to look at
+        <code class="text-white/70">PokerCard</code> and <code class="text-white/70">PokerTableComponent</code>.
+      </p>
+    </div>
+
+    <section>
+      <h2 class="font-display text-lg text-white/80">6-max table</h2>
+      <div class="mt-3 rounded-2xl bg-surface-900 p-4">
+        <app-poker-table [seats]="sixMaxSeats" [board]="sixMaxBoard" [potBb]="18" />
+      </div>
+    </section>
+
+    <section>
+      <h2 class="font-display text-lg text-white/80">Heads-up, preflop</h2>
+      <div class="mt-3 rounded-2xl bg-surface-900 p-4">
+        <app-poker-table [seats]="headsUpSeats" [potBb]="6" />
+      </div>
+    </section>
+
+    <section>
+      <h2 class="font-display text-lg text-white/80">All suits</h2>
+      <div class="mt-3 flex gap-3">
+        @for (suit of suits; track suit) {
+          <div class="w-16">
+            <app-poker-card rank="A" [suit]="suit" />
+          </div>
+        }
+        <div class="w-16">
+          <app-poker-card rank="A" suit="s" [faceDown]="true" />
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="font-display text-lg text-white/80">All ranks</h2>
+      <div class="mt-3 flex flex-wrap gap-2">
+        @for (rank of ranks; track rank) {
+          <div class="w-14">
+            <app-poker-card [rank]="rank" suit="s" />
+          </div>
+        }
+      </div>
+    </section>
+  </div>
+</div>

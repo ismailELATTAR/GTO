@@ -72,5 +72,10 @@ export const routes: Routes = [
       import('./features/achievements/achievements').then((m) => m.Achievements),
     canActivate: [authGuard],
   },
+  {
+    path: 'poker-demo',
+    loadComponent: () => import('./features/poker-demo/poker-demo').then((m) => m.PokerDemo),
+    canActivate: [authGuard],
+  },
   { path: '**', redirectTo: 'dashboard' },
 ];
