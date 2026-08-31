@@ -1,0 +1,25 @@
+<div class="aspect-[5/7] w-full">
+  <svg
+    viewBox="0 0 100 140"
+    class="h-full w-full drop-shadow-md"
+    role="img"
+    [attr.aria-label]="faceDown() ? 'Face-down card' : rank() + ' of ' + suitSymbol()"
+  >
+    @if (faceDown()) {
+      <rect x="2" y="2" width="96" height="136" rx="10" fill="var(--color-felt-800)" stroke="var(--color-accent-500)" stroke-width="3" />
+      <rect x="12" y="12" width="76" height="116" rx="6" fill="none" stroke="var(--color-accent-500)" stroke-width="1" opacity="0.35" />
+      <text x="50" y="82" text-anchor="middle" font-size="36" fill="var(--color-accent-500)" opacity="0.5">♠</text>
+    } @else {
+      <rect x="2" y="2" width="96" height="136" rx="10" fill="#f6f3ea" stroke="#00000025" stroke-width="1.5" />
+      <g [attr.fill]="isRed() ? '#c81e3a' : '#14151a'">
+        <text x="9" y="25" font-size="19" font-weight="700">{{ rank() }}</text>
+        <text x="9" y="42" font-size="16">{{ suitSymbol() }}</text>
+        <text x="50" y="88" text-anchor="middle" font-size="48">{{ suitSymbol() }}</text>
+        <g transform="rotate(180 50 70)">
+          <text x="9" y="25" font-size="19" font-weight="700">{{ rank() }}</text>
+          <text x="9" y="42" font-size="16">{{ suitSymbol() }}</text>
+        </g>
+      </g>
+    }
+  </svg>
+</div>
