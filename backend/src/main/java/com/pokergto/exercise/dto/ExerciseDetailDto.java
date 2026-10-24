@@ -18,4 +18,6 @@ public record ExerciseDetailDto(
     String prompt,
     int xpReward,
     List<ExerciseOptionDto> options,
-    String answerUnit) {}
+    String answerUnit,
+    /** Only set for type = STREET_DECISION. */
+    PokerScenarioDto scenario) {}

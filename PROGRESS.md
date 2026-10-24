@@ -20,12 +20,13 @@ and the frontend (hot-reload via `ng serve`). URLs:
 - Keycloak admin console: http://localhost:8081 (admin/admin)
 - Postgres: localhost:5432 (pokergto/pokergto/pokergto)
 
-A test account already exists (created during this session's testing):
-**`phase4test@example.com`** / **`password123`**. You can also register a
-new one at http://localhost:4200/auth/register. (The earlier `final@example.com`
-account no longer exists — it was on a Postgres volume that's since been
-recreated; Postgres data doesn't survive a fresh `docker compose up` unless
-the volume is preserved.)
+A test account already exists (created during the Phase 5 session):
+**`phase5test@example.com`** / **`password123`**. You can also register a
+new one at http://localhost:4200/auth/register. (Earlier test accounts —
+`final@example.com`, `phase4test@example.com` — no longer exist; Postgres
+data doesn't survive a `docker compose down`/volume recreation between
+sessions. Don't be surprised if `phase5test@example.com` is also gone by
+the time you read this — just register a fresh one.)
 
 **Known gotcha**: the Angular dev container occasionally serves a **stale
 `.angular/cache`** after edits made outside its own watch cycle. If the
@@ -145,11 +146,35 @@ User noticed "Start training" never varied. The MVP placeholder comment said "no
 
 ---
 
+## Phase 5 — Interactive Poker Table ✅ (fully verified, including a browser click-through)
+
+Built on branch `phase-5-poker-table` (not yet merged to `main` — see "How to pick this back up"). Both halves (frontend components, backend poker domain) are done, and they're wired together end to end via the `street_decision` exercise type, which closes out the last item Phase 4 was blocked on.
+
+**Frontend** (committed earlier in this branch's history):
+- `shared/poker/card` — a single playing card, SVG with a `viewBox` so it scales at any size.
+- `shared/poker/table` — seats (any count, positioned via computed ellipse trigonometry, not hardcoded per table size), hole cards, folded/acting/dealer states, 5-slot board with dashed placeholders, pot display. Built on `PokerCard`.
+- `/poker-demo` — permanent (not user-flow) reference page showing both in isolation.
+
+**Backend poker domain** (`poker/`, framework-free per ARCHITECTURE.md §3):
+- `poker/model/Card.java`, `HoleCards.java`, `Board.java` — plain Java records, no JPA/Spring. Parse/render the same two-character notation (`"As"`, `"QsJs"`, `"Kh7d2s"`) the frontend's `shared/poker/card` already uses, so cards round-trip through JSON with no translation layer. Verified via unit tests (`CardTest`/`HoleCardsTest`/`BoardTest`, 24 cases total) rather than curl/browser — these types have no HTTP endpoint of their own.
+- `poker/scenario/PokerScenario.java` + `PokerScenarioRepository.java` — the one package with entity+repository colocated (a deliberate, documented exception to the rest of the backend's `model/`-subfolder convention — see "Backend package convention" below). `action_history` is a `jsonb` column mapped to a plain `String` field (`@JdbcTypeCode(SqlTypes.JSON)`) — passed through as raw JSON text rather than deserialized into a Java type, since nothing on the backend inspects individual actions yet, only hands them to the frontend to render.
+- `V9`/`V10`/`V11` migrations: create `poker_scenarios`, add the `exercises.scenario_id` FK that `V4` had deliberately deferred, seed one `street_decision` exercise with a real scenario.
+
+**Tying it together** — `street_decision` exercises are mechanically identical to `multiple_choice` (both pick from `exercise_options`, graded the same way) but carry a `scenario` for the frontend to render on an actual table instead of describing the hand in prose:
+- Extracted `MultipleChoiceGrader`'s scoring logic into an abstract `OptionGrader` base class; `MultipleChoiceGrader` and the new `StreetDecisionGrader` are each now a ~10-line subclass — same shape of extraction as `ToleranceGrader`/`NumericalGrader`/`EquityEstimationGrader` in Phase 4.
+- `ExerciseDetailDto` gained a nullable `scenario: PokerScenarioDto` (safe to show in full pre-answer — a scenario carries no answer-key data, just the scene).
+- Frontend: extracted the option-button-list + score-banner UI (previously embedded directly in `MultipleChoiceExercise`) into a shared `OptionPicker` component — the frontend mirror of the `OptionGrader` extraction — now used by both `MultipleChoiceExercise` and the new `StreetDecisionExercise`. The latter also renders `PokerTableComponent` from the scenario data (hero + villain only — a "focus view," matching ARCHITECTURE.md §21's documented mobile-first default, and also just what the data actually has: no full 9-max seating, only hero/villain positions) and a parsed action-history line above it.
+- Added `STREET_DECISION` to the `/practice` type picker now that it has a renderer.
+
+**Verified live**: curl'd the pre-answer DTO (scenario present, answer key absent), both grading cases (Call → 70, matching frequency; Fold → 0), confirmed the attempt rows persisted in Postgres, confirmed the `type=STREET_DECISION` filter on `/api/exercises/next` resolves correctly. Then drove the whole thing through a real browser: logged in, navigated to the exercise directly, screenshotted the table rendering the actual scenario (action history, villain's dealer button, hero's real QsJs), clicked "Call," confirmed the score banner and mixed-frequency option tones (Call 70%/3-Bet 30% both gold) render correctly — then separately verified the `/practice` picker's new "Street Decision" filter routes to it. Also ran `mvn test`: all 24 new poker-domain unit tests pass (the only failure in a full `mvn test` run is a pre-existing, environment-dependent `@SpringBootTest` that needs a live Postgres connection — unrelated to this work, not something `mvn test` alone can exercise without `docker compose up` first).
+
+---
+
 ## What's left overall (per ARCHITECTURE.md's phase plan)
 
-- **Phase 4 (current)**: `multiple_choice`, `numerical`, and `equity_estimation` are done (above). Only `street_decision` remains from the MVP list, and it needs Phase 5's table/card components first (see the Phase 5 note below) — so Phase 4 is effectively blocked on Phase 5 for its last piece.
-- **Phase 5 — Interactive Poker Table**: `shared/poker/card`, `shared/poker/table` components (SVG/CSS-based, mobile-first per §21); this is also when `poker_scenarios` (and the `poker/` domain package generally — `Card`/`HoleCards`/`Board` value objects) actually needs building, since `street_decision` exercises want to render on a real table.
-- **Phase 6 — Progress/Gamification**: `progress`/`gamification` packages (XP, streaks, mastery scoring, spaced repetition via `next_review_at`), `GET /api/progress`, and — not explicitly phased but MVP-scoped per ARCHITECTURE.md §7 — the **profile endpoints** (`GET`/`PATCH /api/profile`) were never built; `user_profiles` table exists and is populated empty on registration, but nothing reads/writes it yet. Dashboard's chip-stack stats become real once this phase lands.
+- **Phase 4**: done — `multiple_choice`, `numerical`, `equity_estimation`, and (as of Phase 5 above) `street_decision` are all built, graded, and verified.
+- **Phase 5**: done (above). `phase-5-poker-table` branch is ready to merge to `main` whenever that's wanted — ask before merging, it wasn't done as part of this work.
+- **Phase 6 — Progress/Gamification**: `progress`/`gamification` packages (XP, streaks, mastery scoring, spaced repetition via `next_review_at`), `GET /api/progress`, and — not explicitly phased but MVP-scoped per ARCHITECTURE.md §7 — the **profile endpoints** (`GET`/`PATCH /api/profile`) were never built; `user_profiles` table exists and is populated empty on registration, but nothing reads/writes it yet. Dashboard's chip-stack stats become real once this phase lands. This is also when `getNext`'s random-pick placeholder should become real spaced-repetition selection.
 - **Phase 7 — Range Visualizer**: `shared/poker/range-matrix` (the 13×13 component), `Range`/`RangeEntry` entities, `poker/range` package, `GET /api/ranges`.
 - **Phase 8 — Postflop exercises**: board texture, c-betting, etc. — more content + new exercise types.
 - **Phase 9 — Advanced GTO modules**.
@@ -160,10 +185,12 @@ User noticed "Start training" never varied. The MVP placeholder comment said "no
 
 ## Useful facts for the next session
 
-- Migrations are at **`V5`**. Next one is `V6`.
+- Migrations are at **`V11`**. Next one is `V12`.
 - `frontend/node_modules` now has Playwright installed (dev-only, `npm install --no-save playwright` + `npx playwright install chromium`) — not in `package.json`, so a fresh `npm install` (e.g. inside the `frontend` container) won't have it. Reinstall the same way if browser-driven verification is needed again; it's what proved the multiple_choice exercise actually renders/scores correctly in a real browser, not just via curl.
 - `@AuthenticationPrincipal` in controllers resolves to a Spring `Jwt`, not a raw `UUID` — always `UUID.fromString(jwt.getSubject())`. Confirmed while building `ExerciseController`.
-- Backend package convention: entities in `<feature>/model/`, everything else in `<feature>/{controller,service,repository,dto,mapper}/`. `poker/` is the one package designed differently (entity+repo colocated per sub-domain) — revisit consciously when building it.
+- Backend package convention: entities in `<feature>/model/`, everything else in `<feature>/{controller,service,repository,dto,mapper}/`. `poker/` is the one package designed differently — `poker/model/` holds framework-free value objects (`Card`/`HoleCards`/`Board`, no JPA), while `poker/scenario/` colocates its entity + repository in one folder rather than splitting across `model/`/`repository/`. This is now settled (Phase 5 built it this way), not just a note to revisit.
+- `mvn test` (no args) will show one failure — `BackendApplicationTests.contextLoads`, a pre-existing `@SpringBootTest` that needs a live Postgres connection matching `docker-compose.yml`'s credentials. It's not reachable without `docker compose up` first and isn't related to whatever you just changed; scope to specific test classes (`-Dtest=FooTest,BarTest`) for a quick check, or run the full backend verification against the live stack instead (curl + `psql` + Playwright, as this file's Phase sections do throughout).
+- `./mvnw` occasionally fails with a `maven-surefire-plugin ... Unable to load the mojo` classpath error when run with `-o` (offline) right after a cold start — drop `-o` and let it re-resolve once; it then works offline again for the rest of the session.
 - JPA enum columns are persisted as the exact Java constant name (`@Enumerated(EnumType.STRING)` default) — seed data must use matching uppercase values.
 - Frontend pattern for routed detail views: `toSignal(route.paramMap.pipe(switchMap(id => service.get(id))))` — used identically in `course-detail`, `module-detail`; reuse for the exercise runner too.
 - No entity is ever returned directly from a controller anywhere in the codebase — DTOs only, MapStruct for the mapping. Keep this up in `exercise/`.

@@ -3,8 +3,10 @@ package com.pokergto.exercise.mapper;
 import com.pokergto.exercise.dto.AttemptOptionResultDto;
 import com.pokergto.exercise.dto.ExerciseDetailDto;
 import com.pokergto.exercise.dto.ExerciseOptionDto;
+import com.pokergto.exercise.dto.PokerScenarioDto;
 import com.pokergto.exercise.model.Exercise;
 import com.pokergto.exercise.model.ExerciseOption;
+import com.pokergto.poker.scenario.PokerScenario;
 import org.mapstruct.Mapper;
 
 /**
@@ -16,11 +18,15 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface ExerciseMapper {
 
-  // `options` (List<ExerciseOption> -> List<ExerciseOptionDto>) is mapped
-  // automatically via toOptionDto below — MapStruct finds it by matching types.
+  // `options` (List<ExerciseOption> -> List<ExerciseOptionDto>) and `scenario`
+  // (PokerScenario -> PokerScenarioDto) are both mapped automatically via the
+  // methods below — MapStruct finds them by matching types. A null `scenario`
+  // (every non-STREET_DECISION exercise) maps to a null PokerScenarioDto.
   ExerciseDetailDto toDetail(Exercise exercise);
 
   ExerciseOptionDto toOptionDto(ExerciseOption option);
 
   AttemptOptionResultDto toOptionResult(ExerciseOption option);
+
+  PokerScenarioDto toScenarioDto(PokerScenario scenario);
 }

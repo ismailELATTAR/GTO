@@ -24,6 +24,7 @@ const TYPE_CHOICES: Choice<ExerciseType>[] = [
   { label: 'Multiple Choice', value: 'MULTIPLE_CHOICE' },
   { label: 'Pot Odds', value: 'NUMERICAL' },
   { label: 'Equity Estimation', value: 'EQUITY_ESTIMATION' },
+  { label: 'Street Decision', value: 'STREET_DECISION' },
 ];
 
 /**

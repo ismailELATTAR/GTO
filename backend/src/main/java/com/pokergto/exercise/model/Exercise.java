@@ -1,6 +1,7 @@
 package com.pokergto.exercise.model;
 
 import com.pokergto.curriculum.model.Topic;
+import com.pokergto.poker.scenario.PokerScenario;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -91,6 +92,11 @@ public class Exercise {
   /** Display-only unit shown alongside the input, e.g. "%", "BB" — not the answer key, safe pre-answer. */
   @Column(name = "answer_unit")
   private String answerUnit;
+
+  /** Only set for type = STREET_DECISION — the hand this exercise renders on an actual table. No answer-key data of its own. */
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "scenario_id")
+  private PokerScenario scenario;
 
   @PrePersist
   void onCreate() {

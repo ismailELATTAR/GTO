@@ -32,6 +32,14 @@
               (submitAnswer)="onNumericAnswer($event)"
             />
           }
+          @case ('STREET_DECISION') {
+            <app-street-decision-exercise
+              [exercise]="ex"
+              [attempt]="attempt()"
+              [submitting]="submitting()"
+              (select)="onSelect($event)"
+            />
+          }
           @default {
             <p class="text-sm text-white/60">No renderer yet for exercise type "{{ ex.type }}".</p>
           }

@@ -1,0 +1,24 @@
+@let ex = exercise();
+
+<div class="flex items-center justify-between text-xs uppercase tracking-wide text-white/40">
+  <span>{{ ex.difficulty }}</span>
+  <span>{{ ex.xpReward }} XP</span>
+</div>
+
+<p class="mt-3 text-lg leading-relaxed text-white">{{ ex.prompt }}</p>
+
+@if (actions().length) {
+  <ul class="mt-3 space-y-0.5 text-sm text-white/50">
+    @for (a of actions(); track $index) {
+      <li>{{ a.position }} {{ a.action }}{{ a.sizeBb ? ' to ' + a.sizeBb + ' BB' : '' }}</li>
+    }
+  </ul>
+}
+
+<div class="mt-4 rounded-2xl bg-surface-950/40 p-2">
+  <app-poker-table [seats]="seats()" [board]="board()" [potBb]="ex.scenario?.potBb ?? 0" />
+</div>
+
+<div class="mt-6">
+  <app-option-picker [options]="ex.options" [attempt]="attempt()" [submitting]="submitting()" (select)="select.emit($event)" />
+</div>

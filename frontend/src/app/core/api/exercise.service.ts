@@ -26,6 +26,28 @@ export interface ExerciseOption {
   label: string;
 }
 
+/** One entry of a `PokerScenario.actionHistory` — the shape stored in that JSONB column, parsed client-side. */
+export interface PokerScenarioAction {
+  position: string;
+  action: string;
+  sizeBb?: number;
+}
+
+/** Mirrors `exercise/dto/PokerScenarioDto.java`. Only present on `STREET_DECISION` exercises. */
+export interface PokerScenario {
+  numPlayers: number;
+  heroPosition: string;
+  villainPosition: string | null;
+  effectiveStackBb: number;
+  potBb: number;
+  /** Raw JSON string from the backend — `JSON.parse()` it into `PokerScenarioAction[]`. */
+  actionHistory: string;
+  /** e.g. "QsJs" — see the backend's `HoleCards.of()` notation. */
+  heroCards: string | null;
+  /** e.g. "Kh7d2s" — see the backend's `Board.of()` notation. Null/empty = preflop. */
+  boardCards: string | null;
+}
+
 export interface ExerciseDetail {
   id: string;
   type: ExerciseType;
@@ -35,6 +57,8 @@ export interface ExerciseDetail {
   options: ExerciseOption[];
   /** Display-only, e.g. "%"/"BB" — only set for `NUMERICAL` exercises. Not the answer key. */
   answerUnit: string | null;
+  /** Only set for `STREET_DECISION` exercises. */
+  scenario: PokerScenario | null;
 }
 
 export interface AttemptRequest {
